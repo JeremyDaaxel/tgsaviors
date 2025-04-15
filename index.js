@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 // Configuración de la base de datos PostgreSQL (Render)
 const pool = new Pool({
-  connectionString: 'postgresql://tgs_user:b6EkgcyjB8x4ZtPgAtLdNnMY7pK5Uh1L@dpg-cvu8h83uibrs73ejppp0-a.oregon-postgres.render.com/tgs',
+  connectionString: 'postgresql://tgsaviors_user:Aa9eRiSL4uHxUK7IyImGI2T3cFLS90Pe@dpg-cvutugre5dus73e1ureg-a.oregon-postgres.render.com/tgsaviors',
   ssl: {
     rejectUnauthorized: false
   }
