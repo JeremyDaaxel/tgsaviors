@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -37,19 +38,38 @@ app.get('/db-check', async (req, res) => {
   }
 });
 
-// Ruta de ejemplo de registro (sin usar base de datos)
-app.post('/register', (req, res) => {
+// Ruta de registro real con PostgreSQL
+app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).json({ error: 'Faltan datos requeridos.' });
   }
 
-  // Simulación de registro exitoso (sin base de datos)
-  return res.status(200).json({
-    message: 'Usuario simulado registrado correctamente',
-    id: 1
-  });
+  try {
+    // Encriptar la contraseña antes de guardarla
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insertar usuario en la base de datos
+    const result = await pool.query(
+      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email, created_at',
+      [username, email, hashedPassword]
+    );
+
+    res.status(201).json({
+      message: 'Usuario registrado correctamente ✅',
+      user: result.rows[0],
+    });
+  } catch (err) {
+    console.error('❌ Error al registrar usuario:', err);
+
+    if (err.code === '23505') {
+      // Código de error PostgreSQL para clave duplicada (email único)
+      return res.status(409).json({ error: 'El email ya está registrado.' });
+    }
+
+    res.status(500).json({ error: 'Error del servidor al registrar usuario.' });
+  }
 });
 
 // Iniciar el servidor
