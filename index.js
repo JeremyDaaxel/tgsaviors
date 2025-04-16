@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
-const bcrypt = require('bcrypt');
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -42,7 +41,7 @@ app.get('/db-check', async (req, res) => {
   }
 });
 
-// Ruta de registro real con PostgreSQL
+// Ruta de registro sin encriptación de la contraseña
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -51,13 +50,10 @@ app.post('/register', async (req, res) => {
   }
 
   try {
-    // Encriptar la contraseña antes de guardarla
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insertar usuario en la base de datos
+    // Insertar usuario en la base de datos sin encriptar la contraseña
     const result = await pool.query(
       'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email, created_at',
-      [username, email, hashedPassword]
+      [username, email, password]
     );
 
     res.status(201).json({
