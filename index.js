@@ -8,7 +8,12 @@ const app = express();
 const port = process.env.PORT || 10000;
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: 'https://www.rankher.net/', // <- aquí especificás tu dominio del frontend
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+}));
+
 app.use(bodyParser.json());
 
 // Configuración de la base de datos PostgreSQL (Render)
